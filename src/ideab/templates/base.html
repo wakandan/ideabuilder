@@ -1,0 +1,11 @@
+<html>
+    <body>
+    {{user}}
+	{%if user.id%}
+	   <a href="{% url user_logout %}">(logout)</a>
+	{% else %}
+        <a href="{% url user_login %}">(login)</a>	
+	{%endif%}</br>
+    {%block content%}{%endblock%}
+    </body>
+</html>

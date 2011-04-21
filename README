@@ -1,0 +1,45 @@
+ideabuider is an idea outsourcing platform in university.
+**Problem it's trying to solve: 
+-------------------------------
+- The lack of people and time to work on an idea 
+- The urge to learn new knowledge to prepare for student's job in the future
+
+**Its customers: 
+----------------
+- Young entrepreneur. Students with ideas or the need of perform some task which is not their expertise 
+at a low cost
+- Proactive students who want to learn something new and earn experience
+- Students who want to set up business with their friends
+
+What the site can perform:
+-------------------------- 
+Entrepreneurs can:
+- Post project and tasks to be done. Project is a product or service that needs 
+help. It has the name, description, and a set of tasks. 
+- Get a list of best candidates as well as eager leaners that wants some skill 
+set.
+- Receive advices from other entrepreneurs or mentors registed with the website
+
+Task:
+- is a quickly accomplishable chunk of work that the idea owner decided to outsource. It has a name, a description, a price and credit the owner willing to pay for the 
+achiever. The idea owner can measure the project's complete by monitoring the amount of task done and left
+- It has a level of urgency that the owner wants to accomplish it.
+- Has the number of participants it can accomodate. 
+
+Builder can: 
+- Take part in project as a member, or co-founder
+- Take up task as a freelancer
+- Comment on the project or task. Recommendation
+- Earn credit from doing tasks
+- Post their profile online 
+- Register only by using their official email address
+- Post their skills set that they possess
+- Post the skills that they want to learn. Skill is a tag of what they can do, 
+along with their experience on that skill. The experience initially can only 
+be measured using the amount of task they have done. Later it can be gauged 
+using test taken from some 3rd test sites. 
+
+Skills:
+- A tag
+- Will be categorized according to the aspect of business they are under, which 
+could be marketing, research, development,....

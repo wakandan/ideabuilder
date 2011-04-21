@@ -1,0 +1,6 @@
+DEBUG test
+DEBUG ['__builtins__', '__doc__', '__file__', '__name__', '__package__', '__path__']
+DEBUG ['Builder', 'Project', 'Skill', 'SkillCategory', 'Task', 'User', '__builtins__', '__doc__', '__file__', '__name__', '__package__', 'models']
+DEBUG ['Builder', 'Project', 'Skill', 'SkillCategory', 'Task', 'User', '__builtins__', '__doc__', '__file__', '__name__', '__package__', 'models']
+DEBUG ['Builder', 'Project', 'Skill', 'SkillCategory', 'Task', 'User', '__builtins__', '__doc__', '__file__', '__name__', '__package__', 'models']
+DEBUG ['Builder', 'Project', 'Skill', 'SkillCategory', 'Task', 'User', '__builtins__', '__doc__', '__file__', '__name__', '__package__', 'models']

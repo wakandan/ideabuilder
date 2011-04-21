@@ -1,0 +1,11 @@
+{%extends "base.html"%}
+
+{%block content%}
+    {{object.project_name}}<br>
+	{{object.project_desc}}<br>
+	Owner: {{object.project_owner}}<br>
+	Builders: <br>
+	{% for builder in builder_list %}
+	   {{builder.username}} - {{builder.email}}<br>
+	{%endfor%}
+{%endblock%}
