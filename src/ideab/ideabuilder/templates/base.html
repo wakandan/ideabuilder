@@ -5,6 +5,7 @@
 	   <a href="{% url user_logout %}">(logout)</a>
 	{% else %}
         <a href="{% url user_login %}">(login)</a>	
+		<a href="{% url user_signup %}">(signup)</a>
 	{%endif%}</br>
     {%block content%}{%endblock%}
     </body>

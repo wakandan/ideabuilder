@@ -8,31 +8,30 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding model 'Project'
-        db.create_table('ideabuilder_project', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('project_name', self.gf('django.db.models.fields.CharField')(max_length=20)),
-            ('project_desc', self.gf('django.db.models.fields.TextField')()),
-            ('project_owner', self.gf('django.db.models.fields.related.ForeignKey')(related_name='only_owner', to=orm['auth.User'])),
-        ))
-        db.send_create_signal('ideabuilder', ['Project'])
+        # Removing M2M table for field task on 'Task'
+        db.delete_table('ideabuilder_task_task')
 
-        # Adding M2M table for field project_builder on 'Project'
-        db.create_table('ideabuilder_project_project_builder', (
+        # Adding M2M table for field builders on 'Task'
+        db.create_table('ideabuilder_task_builders', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('project', models.ForeignKey(orm['ideabuilder.project'], null=False)),
-            ('user', models.ForeignKey(orm['auth.user'], null=False))
+            ('task', models.ForeignKey(orm['ideabuilder.task'], null=False)),
+            ('builder', models.ForeignKey(orm['ideabuilder.builder'], null=False))
         ))
-        db.create_unique('ideabuilder_project_project_builder', ['project_id', 'user_id'])
+        db.create_unique('ideabuilder_task_builders', ['task_id', 'builder_id'])
 
 
     def backwards(self, orm):
         
-        # Deleting model 'Project'
-        db.delete_table('ideabuilder_project')
+        # Adding M2M table for field task on 'Task'
+        db.create_table('ideabuilder_task_task', (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('task', models.ForeignKey(orm['ideabuilder.task'], null=False)),
+            ('builder', models.ForeignKey(orm['ideabuilder.builder'], null=False))
+        ))
+        db.create_unique('ideabuilder_task_task', ['task_id', 'builder_id'])
 
-        # Removing M2M table for field project_builder on 'Project'
-        db.delete_table('ideabuilder_project_project_builder')
+        # Removing M2M table for field builders on 'Task'
+        db.delete_table('ideabuilder_task_builders')
 
 
     models = {
@@ -72,13 +71,37 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
+        'ideabuilder.builder': {
+            'Meta': {'object_name': 'Builder', '_ormbases': ['auth.User']},
+            'credit_no': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'user_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True', 'primary_key': 'True'})
+        },
         'ideabuilder.project': {
             'Meta': {'object_name': 'Project'},
+            'builder': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'builders'", 'symmetrical': 'False', 'to': "orm['auth.User']"}),
+            'desc': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'project_builder': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'builders'", 'symmetrical': 'False', 'to': "orm['auth.User']"}),
-            'project_desc': ('django.db.models.fields.TextField', [], {}),
-            'project_name': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
-            'project_owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'only_owner'", 'to': "orm['auth.User']"})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
+            'owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'only_owner'", 'to': "orm['auth.User']"})
+        },
+        'ideabuilder.skill': {
+            'Meta': {'object_name': 'Skill'},
+            'category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ideabuilder.SkillCategory']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '20'})
+        },
+        'ideabuilder.skillcategory': {
+            'Meta': {'object_name': 'SkillCategory'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '20'})
+        },
+        'ideabuilder.task': {
+            'Meta': {'object_name': 'Task'},
+            'builders': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['ideabuilder.Builder']", 'symmetrical': 'False'}),
+            'desc': ('django.db.models.fields.TextField', [], {}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'project': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ideabuilder.Project']"})
         }
     }
 

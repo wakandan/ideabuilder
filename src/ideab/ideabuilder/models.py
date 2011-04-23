@@ -1,20 +1,22 @@
-from django.db import models
 from django.contrib.auth.admin import User
+from django.contrib.auth.backends import ModelBackend
+from django.db import models
 
 class Project(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20, unique=True)
     desc = models.TextField()
     owner = models.ForeignKey(User, related_name='only_owner')
-    builder = models.ManyToManyField(User, related_name='builders')      
+    builders = models.ManyToManyField(User, related_name='builders')      
 
 class Builder(User):
     credit_no = models.IntegerField(default=0)   
+    user = models.ForeignKey(User, unique=True, null=True, related_name='linked_user')
     
 class Task(models.Model):
     name = models.CharField(max_length=128)
     desc = models.TextField()
     project = models.ForeignKey(Project)
-    task = models.ManyToManyField(Builder)
+    builders = models.ManyToManyField(Builder)
     
 class SkillCategory(models.Model):
     name = models.CharField(max_length=20)        
@@ -25,4 +27,12 @@ class Skill(models.Model):
     category = models.ForeignKey(SkillCategory)
     pass       
 
+#class BuilderAuthenticationBackend(ModelBackend):
+#    def authenticate(self, username, password):
+#        try: 
+#            user = Builder.objects.get(username=username)
+#            if user.check_password(password):
+#                return user
+#        except Builder.DoesNotExist, e:
+#            return None
 

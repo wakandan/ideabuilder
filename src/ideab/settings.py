@@ -12,7 +12,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'dev',                      # Or path to database file if usingev sqlite3.
+        'NAME': 'ideabuilder',                      # Or path to database file if usingev sqlite3.
         'USER': 'root',                      # Not used with sqlite3.
         'PASSWORD': 'root',                  # Not used with sqlite3.
         'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -106,7 +106,6 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    'templates',
     'ideabuilder/templates'
 )
 
@@ -122,7 +121,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'south',
-    'ideabuilder'
+    'ideabuilder',
+    'test_utils'
 )
 
 # A sample logging configuration. The only tangible logging
@@ -168,3 +168,11 @@ LOGGING = {
         } 
     }
 }
+
+#config Builder class as the authentication mechanism
+AUTH_PROFILE_MODULE = 'ideabuilder.Builder'
+
+#the backend class to validate user-customized user class
+#AUTHENTICATION_BACKENDS = (
+#    'ideab.ideabuilder.views.builder.BuilderAuthenticationBackend',
+#)

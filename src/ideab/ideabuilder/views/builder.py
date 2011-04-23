@@ -3,51 +3,48 @@ Created on Jan 12, 2011
 
 @author: akai
 '''
+from ..models import Builder
+from django import forms
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django import forms 
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.views.decorators.csrf import csrf_protect
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate
-from django.http import Http404
-from ..models import Builder
+from django.utils import log
+from django.conf import settings
+log.dictConfig(settings.LOGGING)
+logger = log.getLogger('custom')
 
 
 class UserForm(forms.Form):
-    username = forms.CharField(max_length=10)
     email = forms.EmailField(max_length=20)
-    password1 = forms.CharField(max_length=20,
-                                widget=forms.PasswordInput(render_value=False))
-    password2 = forms.CharField(max_length=20,
-                                widget=forms.PasswordInput(render_value=False))
+    password = forms.CharField(max_length=20,
+                               widget=forms.PasswordInput(render_value=False))
     
-    def clean_username(self):
+    def clean_email(self):
         try:
-            Builder.objects.get(username=self.cleaned_data['username'])
+            Builder.objects.get(username=self.cleaned_data['email'])            
         except Builder.DoesNotExist:
-            return self.cleaned_data['username']
-        raise forms.ValidationError("Username already in use")
-    def clean(self):
-        if 'password1' not in self.cleaned_data or \
-            'password2' not in self.cleaned_data or \
-            self.cleaned_data['password1']!=self.cleaned_data['password2']:
-            raise forms.ValidationError("Passwords don't match")
-        return self.cleaned_data
+            return self.cleaned_data['email']
+        raise forms.ValidationError("Email already in use")
 
     def save(self):
-        Builder.objects.create(username=self.cleaned_data['username'], 
-                                 email=self.cleaned_data['email'], 
-                                 password=self.cleaned_data['password1'])
+        new_builder = Builder.objects.create(username=self.cleaned_data['email'], 
+                                             email=self.cleaned_data['email'])
+        new_builder.set_password(self.cleaned_data['password'])
+        new_builder.save()
+        
     
 @csrf_protect
 def user_signup(request):
     if request.method == 'POST':
         form = UserForm(data=request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('user_profile'))
+        if form.is_valid():            
+            user = form.save()
+#            login(request, user)
+            return HttpResponseRedirect(reverse('index'))
     else:    
         form = UserForm()
     return render_to_response('user_signup.html', {'form':form},
@@ -59,11 +56,17 @@ def user_profile(request):
 
 def user_login(request):
     if request.method == 'POST':
-        username = request['username']
-        password = request['password']
-        user = authenticate(username, password)
+        form = UserForm(data=request.POST)
+        username = request.POST['email']
+        password = request.POST['password']
+        user = authenticate(username=username, 
+                            password=password)
         if user is not None:            
-            return HttpResponseRedirect(reverse('user_profile'))            
+            return HttpResponseRedirect(reverse('index'))
         else:
-            raise Http404    
+            form.errors['message'] = 'Invalid login'
+    else:
+        form = UserForm()
+    return render_to_response('user_login.html', {'form':form},
+                              RequestContext(request))
 

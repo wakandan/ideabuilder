@@ -8,30 +8,14 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Removing M2M table for field task on 'Builder'
-        db.delete_table('ideabuilder_builder_task')
-
-        # Adding M2M table for field task on 'Task'
-        db.create_table('ideabuilder_task_task', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('task', models.ForeignKey(orm['ideabuilder.task'], null=False)),
-            ('builder', models.ForeignKey(orm['ideabuilder.builder'], null=False))
-        ))
-        db.create_unique('ideabuilder_task_task', ['task_id', 'builder_id'])
+        # Adding field 'Builder.user'
+        db.add_column('ideabuilder_builder', 'user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], unique=True, null=True), keep_default=False)
 
 
     def backwards(self, orm):
         
-        # Adding M2M table for field task on 'Builder'
-        db.create_table('ideabuilder_builder_task', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('builder', models.ForeignKey(orm['ideabuilder.builder'], null=False)),
-            ('task', models.ForeignKey(orm['ideabuilder.task'], null=False))
-        ))
-        db.create_unique('ideabuilder_builder_task', ['builder_id', 'task_id'])
-
-        # Removing M2M table for field task on 'Task'
-        db.delete_table('ideabuilder_task_task')
+        # Deleting field 'Builder.user'
+        db.delete_column('ideabuilder_builder', 'user_id')
 
 
     models = {
@@ -74,11 +58,12 @@ class Migration(SchemaMigration):
         'ideabuilder.builder': {
             'Meta': {'object_name': 'Builder', '_ormbases': ['auth.User']},
             'credit_no': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'unique': 'True', 'null': 'True'}),
             'user_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True', 'primary_key': 'True'})
         },
         'ideabuilder.project': {
             'Meta': {'object_name': 'Project'},
-            'builder': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'builders'", 'symmetrical': 'False', 'to': "orm['auth.User']"}),
+            'builders': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'builders'", 'symmetrical': 'False', 'to': "orm['auth.User']"}),
             'desc': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
@@ -97,11 +82,11 @@ class Migration(SchemaMigration):
         },
         'ideabuilder.task': {
             'Meta': {'object_name': 'Task'},
+            'builders': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['ideabuilder.Builder']", 'symmetrical': 'False'}),
             'desc': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'project': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ideabuilder.Project']"}),
-            'task': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['ideabuilder.Builder']", 'symmetrical': 'False'})
+            'project': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ideabuilder.Project']"})
         }
     }
 

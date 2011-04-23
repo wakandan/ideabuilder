@@ -6,7 +6,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
-    (r'^idea/', include('ideabuilder.urls')),
+    (r'^ideabuilder/', include('ideabuilder.urls')),
     #(r'^ideabuilder/signup/$', 'ideabuilder.views.builder.user_signup', {}, 'user_signup')             
 )
 

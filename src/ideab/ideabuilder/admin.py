@@ -9,7 +9,6 @@ from django.utils import log
 from django.conf import settings
 log.dictConfig(settings.LOGGING)
 logger = log.getLogger('custom')
-logger.debug(dir(models))
 m = dir(models)
 for i in m:
     try:
