@@ -1,8 +1,15 @@
 {%extends "base.html"%}
 
-{%block content%}
+{%block content%}   
+    Listing {{object_list.count}} projects.<br>
     {%for i in object_list%}
-	   {{i.id}} - {{i.project_name}}<br>
-	   <i>{{i.project_desc}}</i><br>	   
+        <form action="{%url project_apply%}" method="POST">
+            {% csrf_token %}
+    	   {{i.id}} - 
+    	   <b><a href="{{i.get_absolute_url}}">{{i.name}}</a></b><br>
+    	   <i>{{i.desc}}</i><br>
+    	   <input type="hidden" name="project_id" value="{{i.id}}"/>	     	   
+    	   <input type="submit" value="apply"/>  
+	   </form>
 	{%endfor%}
 {%endblock%}

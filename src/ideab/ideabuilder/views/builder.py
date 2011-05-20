@@ -5,15 +5,17 @@ Created on Jan 12, 2011
 '''
 from ..models import Builder
 from django import forms
+from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from django.views.decorators.csrf import csrf_protect
 from django.utils import log
-from django.conf import settings
+from django.views.decorators.csrf import csrf_protect
+from ideab.ideabuilder.models import Project
+
 log.dictConfig(settings.LOGGING)
 logger = log.getLogger('custom')
 
@@ -43,7 +45,6 @@ def user_signup(request):
         form = UserForm(data=request.POST)
         if form.is_valid():            
             user = form.save()
-#            login(request, user)
             return HttpResponseRedirect(reverse('index'))
     else:    
         form = UserForm()
@@ -70,3 +71,35 @@ def user_login(request):
     return render_to_response('user_login.html', {'form':form},
                               RequestContext(request))
 
+@csrf_protect
+@login_required
+def apply(request):
+    '''
+    Add the current user as a builder to viewing project's builder
+    wait list. The idea owner will have to endorse this user manually
+    so that the guy can officially take part in the project.
+    
+    Object_id is the project_id that the guy wants to apply to, it will 
+        be passed in the url. The html page should confirm with the user
+        before the request should be sent
+    '''            
+    def add_project(builder, project):
+        '''Take care of the logic of adding the project to a builder'''        
+        pass        
+    if request.method == 'POST': 
+        user = request.user       
+        project_id = request.POST['project_id']
+        project = get_object_or_404(Project, pk=project_id)        
+        project.builders.add(user)
+        logger.debug("%s|apply|builder %s to project %s's waitlist" % (__name__, user.__unicode__(), project.__unicode__()))
+    return HttpResponseRedirect(reverse('project_list'))
+
+
+@csrf_protect
+@login_required
+def endorse(request, accept=True):
+    '''
+    For an idea owner to endorse a builder in the project's wait list.
+    accept=True means accepted, accept=False means rejected
+    '''
+    pass
