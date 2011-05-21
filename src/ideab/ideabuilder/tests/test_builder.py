@@ -1,12 +1,9 @@
-from ..models import Builder, Project, Task
-from ..views import project
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.test.testcases import TestCase
 from django.utils import log
-from ideab.ideabuilder.views.builder import user_login
+from ideab.ideabuilder.models import Builder, Project
 
 
 log.dictConfig(settings.LOGGING)
@@ -70,7 +67,9 @@ class TestUser(TestCase):
         r = c.post(reverse('project_apply'), {'project_id':self.project.id})
         
         #test if the builder should appear in the builder list of the project
-        self.assertEqual(len(self.project.builders.filter(id=builder.id)), 1)        
+        self.assertEqual(len(self.project.builders.filter(id=builder.id)), 1) 
+        
+        #test if the builder apply to the same project again, it means unapply       
         pass
     
     def test_endorse(self):
