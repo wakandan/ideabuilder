@@ -91,8 +91,10 @@ def apply(request):
         project_id = request.POST['project_id']
         project = get_object_or_404(Project, pk=project_id)
         if not project.waitlist.filter(id=user.id):
+            logger.debug("%s|apply|adding userid %d to projectid %d's waitlist" % (__name__, user.id, project.id))
             project.waitlist.add(user)
         else:
+            logger.debug("%s|apply|removing userid %d from projectid %d's waitlist" % (__name__, user.id, project.id))
             project.waitlist.remove(user)
     return HttpResponseRedirect(reverse('project_list'))
 

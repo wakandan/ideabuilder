@@ -5,15 +5,28 @@
 	{{object.desc}}<br>
 	Owner: {{object.owner}}<br>
 	Builders: <br>
-	{% for builder in builder_list %}
+	{% for builder in builders %}
 	   {{builder.username}} - {{builder.email}}<br>
 	{%endfor%}
 	{% ifnotequal user.id object.owner.id %}   
-	<form action="{% url project_apply %}" method="post">
-	    {% csrf_token %}
-	    <input type="hidden" value="{{object.id}}" name="project_id"/>
-	    {% load project_tags %}
-	    <input type="submit" value="{% check_project_applied object %}"/>
-	</form>
+    	<form action="{% url project_apply %}" method="post">
+    	    {% csrf_token %}
+    	    <input type="hidden" value="{{object.id}}" name="project_id"/>
+    	    {% load project_tags %}
+    	    <input type="submit" value="{% check_project_applied object %}"/>
+    	</form>
+	{% else %}	
+        {% if waitlist %}
+        {# builder endorsing options #}
+           <form action="{% url project_endorse %}" method="post">
+           {% csrf_token %}
+           <input type="hidden" value="{{object.id}}" name="project_id"/>
+           {% for builder in waitlist %}	              
+                <input type="checkbox" name="builder">builder.email</input>
+           {% endfor %}
+           </br>
+           <input type="submit" value="Endorse">
+           </form>
+        {% endif %}      	
     {% endifnotequal %}	
 {%endblock%}

@@ -28,8 +28,10 @@ def project_detail(request, object_id):
                          Project.objects.all(),
                          object_id,
                          template_name=PROJECT_DETAIL_TEMPLATE,
-
-                         extra_context={'builder_list': project.builders.all()})
+                         extra_context={
+                            'waitlist': project.waitlist.all(),
+                            'builders': project.builders.all()                            
+                        },)
     
     
 class ProjectForm(ModelForm):
@@ -67,3 +69,8 @@ def delete(request):
         except Project.DoesNotExist, e:
             pass
     return HttpResponseRedirect(reverse('project_list'))
+
+@csrf_protect    
+@login_required
+def endorse(request):
+    pass

@@ -20,7 +20,7 @@ def do_check_project_applied(parser, token):
             try:
                 project = self.project.resolve(context)
                 user = template.Variable('user').resolve(context)
-                if len(project.builders.filter(id=user.id))==1:
+                if len(project.waitlist.filter(id=user.id))==1:
                     return 'Unapply'
                 else:
                     return 'Apply'

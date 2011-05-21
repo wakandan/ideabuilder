@@ -27,5 +27,6 @@ urlpatterns += patterns('',
         {}, 'project_detail'),
     (r'project/add/$', 'ideabuilder.views.project.add', {}, 'project_add'),
     (r'project/del/$', 'ideabuilder.views.project.delete', {}, 'project_del'),
-    (r'project/apply/$', 'ideabuilder.views.builder.apply', {}, 'project_apply')
+    (r'project/apply/$', 'ideabuilder.views.builder.apply', {}, 'project_apply'),
+    (r'project/endorse/$', 'ideabuilder.views.builder.endorse', {}, 'project_endorse')
 )

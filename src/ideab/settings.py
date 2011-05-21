@@ -1,4 +1,5 @@
 # Django settings for ideab project.
+import sys
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -175,3 +176,10 @@ AUTH_PROFILE_MODULE = 'ideabuilder.Builder'
 #AUTHENTICATION_BACKENDS = (
 #    'ideab.ideabuilder.views.builder.BuilderAuthenticationBackend',
 #)
+
+#dynamically switch test backend 
+if 'test' in sys.argv:
+    try:
+        from test_settings import *
+    except ImportError:
+        pass
