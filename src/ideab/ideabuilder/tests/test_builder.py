@@ -69,7 +69,9 @@ class TestUser(TestCase):
         #test if the builder should appear in the builder list of the project
         self.assertEqual(len(self.project.builders.filter(id=builder.id)), 1) 
         
-        #test if the builder apply to the same project again, it means unapply       
+        r = c.post(reverse('project_apply'), {'project_id':self.project.id})
+        #test if the builder apply to the same project again, it means unapply
+        self.assertEqual(len(self.project.builders.filter(id=builder.id)), 0)
         pass
     
     def test_endorse(self):

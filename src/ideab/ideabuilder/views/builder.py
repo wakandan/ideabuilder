@@ -24,33 +24,33 @@ class UserForm(forms.Form):
     email = forms.EmailField(max_length=20)
     password = forms.CharField(max_length=20,
                                widget=forms.PasswordInput(render_value=False))
-    
+
     def clean_email(self):
         try:
-            Builder.objects.get(username=self.cleaned_data['email'])            
+            Builder.objects.get(username=self.cleaned_data['email'])
         except Builder.DoesNotExist:
             return self.cleaned_data['email']
         raise forms.ValidationError("Email already in use")
 
     def save(self):
-        new_builder = Builder.objects.create(username=self.cleaned_data['email'], 
+        new_builder = Builder.objects.create(username=self.cleaned_data['email'],
                                              email=self.cleaned_data['email'])
         new_builder.set_password(self.cleaned_data['password'])
         new_builder.save()
-        
-    
+
+
 @csrf_protect
 def user_signup(request):
     if request.method == 'POST':
         form = UserForm(data=request.POST)
-        if form.is_valid():            
+        if form.is_valid():
             user = form.save()
             return HttpResponseRedirect(reverse('index'))
-    else:    
+    else:
         form = UserForm()
     return render_to_response('user_signup.html', {'form':form},
                               RequestContext(request))
-    
+
 @login_required
 def user_profile(request):
     return render_to_response('user_profile.html')
@@ -60,9 +60,9 @@ def user_login(request):
         form = UserForm(data=request.POST)
         username = request.POST['email']
         password = request.POST['password']
-        user = authenticate(username=username, 
+        user = authenticate(username=username,
                             password=password)
-        if user is not None:            
+        if user is not None:
             return HttpResponseRedirect(reverse('index'))
         else:
             form.errors['message'] = 'Invalid login'
@@ -82,16 +82,18 @@ def apply(request):
     Object_id is the project_id that the guy wants to apply to, it will 
         be passed in the url. The html page should confirm with the user
         before the request should be sent
-    '''            
+    '''
     def add_project(builder, project):
-        '''Take care of the logic of adding the project to a builder'''        
-        pass        
-    if request.method == 'POST': 
-        user = request.user       
+        '''Take care of the logic of adding the project to a builder'''
+        pass
+    if request.method == 'POST':
+        user = request.user
         project_id = request.POST['project_id']
-        project = get_object_or_404(Project, pk=project_id)        
-        project.builders.add(user)
-        logger.debug("%s|apply|builder %s to project %s's waitlist" % (__name__, user.__unicode__(), project.__unicode__()))
+        project = get_object_or_404(Project, pk=project_id)
+        if not project.builders.filter(id=user.id):
+            project.builders.add(user)
+        else:
+            project.builders.remove(user)
     return HttpResponseRedirect(reverse('project_list'))
 
 
