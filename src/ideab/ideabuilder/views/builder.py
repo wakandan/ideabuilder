@@ -14,7 +14,7 @@ from django.template.context import RequestContext
 from django.utils import log
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic.list_detail import object_detail
-from ideab.ideabuilder.models import Project, Builder
+from ideab.ideabuilder.models import Project, Builder, Application
 
 log.dictConfig(settings.LOGGING)
 logger = log.getLogger('custom')
@@ -54,11 +54,11 @@ def user_signup(request):
 @login_required
 def user_profile(request):
     '''When the user logged in, he should see all the projects he's applying'''
-    builder = Builder.objects.filter(id=request.user.id)
-    applying_projects = request.user.project_set.all()
+    builder = request.user.get_profile()
+    applying_projects = Application.objects.filter(builder__id=builder.id)
     return object_detail(request,
-                         builder,           #queryset that contains the object
-                         request.user.id,   #pk of the object
+                         Builder.objects.all(), #queryset that contains the object
+                         request.user.id, #pk of the object
                          template_name='user_profile.html',
                          extra_context={'applying_projects':applying_projects})
 
@@ -94,15 +94,24 @@ def apply(request):
         '''Take care of the logic of adding the project to a builder'''
         pass
     if request.method == 'POST':
-        user = request.user
+        user = request.user.get_profile()
         project_id = request.POST['project_id']
         project = get_object_or_404(Project, pk=project_id)
         if not project.waitlist.filter(id=user.id):
 #            logger.debug("%s|apply|adding userid %d to projectid %d's waitlist" % (__name__, user.id, project.id))
             project.waitlist.add(user)
+            Application.objects.create(project=project,
+                                       builder=user,
+                                       status=Application.STATUS_PENDING)    #pending 
         else:
 #            logger.debug("%s|apply|removing userid %d from projectid %d's waitlist" % (__name__, user.id, project.id))
             project.waitlist.remove(user)
+            try:
+                application = Application.objects.get(project__id=project_id,
+                                                      builder__id=user.id)
+                application.delete()
+            except Application.DoesNotExist:
+                pass 
     return HttpResponseRedirect(reverse('project_list'))
 
 
@@ -113,24 +122,24 @@ def endorse(request, accept=True):
     For an idea owner to endorse a builder in the project's wait list.
     accept=True means accepted, accept=False means rejected
     '''
-    
-    if request.method == 'POST':     
+
+    if request.method == 'POST':
         #the person endorsing should be the owner of this project
         project_id = request.POST['project_id']
         project = get_object_or_404(Project, pk=project_id)
         if project.owner_id != request.user.id:
             raise Http404
             pass
-        else:            
+        else:
             for builder_id in request.POST.getlist('waitlist_accept'):
-                try:                    
+                try:
                     builder = Builder.objects.get(id=builder_id)
                     project.waitlist.remove(builder)
                     project.builders.add(builder)
                 except Builder.DoesNotExist:
                     pass
             for builder_id in request.POST.getlist('waitlist_reject'):
-                try:                    
+                try:
                     builder = Builder.objects.get(id=builder_id)
                     project.waitlist.remove(builder)
                 except Builder.DoesNotExist:

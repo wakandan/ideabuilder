@@ -19,7 +19,7 @@ class Project(models.Model):
 class Builder(User):
     name = models.CharField(max_length=200, default='Unknown')
     credit_no = models.IntegerField(default=0)   
-    user = models.ForeignKey(User, unique=True, null=True, related_name='linked_user')
+    user = models.OneToOneField(User, unique=True, null=True, related_name='linked_user')
     nationality = models.CharField(max_length=50, default='Unknown')
     university = models.CharField(max_length=200, default='Unknown')        
     
@@ -44,4 +44,19 @@ class Skill(models.Model):
     
     def __unicode__(self):
         return "%s:%s" % (self.category, self.name)
-
+    
+class Application(models.Model):
+    project = models.ForeignKey(Project)
+    builder = models.ForeignKey(Builder)
+    STATUS_PENDING = 0
+    STATUS_ACCEPTED = 1
+    STATUS_REJECTED= -1
+    APPLICATION_STATUS_CHOICES = (
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_ACCEPTED, 'Accepted'),
+        (STATUS_REJECTED, 'Rejected')
+    ) 
+    status = models.IntegerField(choices=APPLICATION_STATUS_CHOICES)
+    
+    def __unicode__(self):
+        return "%s|%s|%d" % (self.project.id, self.builder.email, self.status )

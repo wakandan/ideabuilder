@@ -2,4 +2,7 @@
 
 {%block content%}
 Welcome
+{% for application in applying_projects %}
+    <br>{{application.project.name}} - {{application.status}}    
+{% endfor %}
 {%endblock%}

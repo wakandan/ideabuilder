@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.test.testcases import TestCase
 from django.utils import log
-from ideab.ideabuilder.models import Builder, Project
+from ideab.ideabuilder.models import Builder, Project, Application
 from utils import create_test_user
 
 
@@ -48,6 +48,14 @@ class TestUser(TestCase):
 
         #test if the builder should appear in the builder list of the project
         self.assertEqual(len(self.project.waitlist.filter(id=builder.id)), 1)
+        
+        application = Application.objects.filter(project__id=self.project.id, 
+                                                 builder__id=builder.id)
+        #test for application recorded
+        self.assertEqual(len(application),1)
+        
+        #test for correct pending status
+        self.assertEqual(application[0].status, 0)
 
         r = c.post(reverse('project_apply'), {'project_id':self.project.id})
         #test if the builder apply to the same project again, it means unapply
