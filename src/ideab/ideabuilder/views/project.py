@@ -69,8 +69,3 @@ def delete(request):
         except Project.DoesNotExist, e:
             pass
     return HttpResponseRedirect(reverse('project_list'))
-
-@csrf_protect    
-@login_required
-def endorse(request):
-    pass

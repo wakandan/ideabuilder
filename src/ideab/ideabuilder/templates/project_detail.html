@@ -21,8 +21,11 @@
            <form action="{% url project_endorse %}" method="post">
            {% csrf_token %}
            <input type="hidden" value="{{object.id}}" name="project_id"/>
-           {% for builder in waitlist %}	              
-                <input type="checkbox" name="builder">builder.email</input>
+           {% for builder in waitlist %}	                 
+                <br>
+                {{builder.email}}
+                <input type="checkbox" name="waitlist_accept" value="{{builder.id}}"></input>
+                <input type="checkbox" name="waitlist_reject" value="{{builder.id}}"></input>
            {% endfor %}
            </br>
            <input type="submit" value="Endorse">
