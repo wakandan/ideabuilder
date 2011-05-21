@@ -4,6 +4,7 @@ from django.test.client import Client
 from django.test.testcases import TestCase
 from django.utils import log
 from ideab.ideabuilder.models import Builder, Project
+from utils import create_test_user
 
 
 log.dictConfig(settings.LOGGING)
@@ -15,67 +16,69 @@ class TestUser(TestCase):
     When set password for a user, remember to SAVE it 
     '''
     def setUp(self):
-        self.builder2 = Builder.objects.create(username='user2@a.com',
-                                             email='user2@a.com')
-        self.builder2.set_password('user2@a.com')     
+        self.builder2 = create_test_user('user2@a.com')
         self.project = Project.objects.create(name='Project_Test',
                                               desc='',
-                                              owner_id=self.builder2.id)                
-        pass
-    
+                                              owner_id=self.builder2.id)
+
     def test_signup(self):
         c = Client()
         r = c.post(reverse('user_signup'), {'email':'user1@user1.com',
                                             'password':'user1@user1.com'})
-        user = Builder.objects.get(username='user1@user1.com')        
-        
+        user = Builder.objects.get(username='user1@user1.com')
+
         #the new email should appear in the database
         self.assertTrue(user.email is not None)
-        
+
         #the password should be hashed, means saved
         self.assertNotEqual(user.password, '')
-    
-    
-    def test_signup_duplicate_user(self):
-        c = Client()
-        user = Builder.objects.create(username='user1@user1.com',
-                                      email='user1@user1.com')
-        user.set_password('user1@user1.com')
-        user.save()
-        r = c.post(reverse('user_signup'), {'email':'user1@user1.com',
-                                            'password':'user1@user1.com'})
+
+        #test for duplicating a signup
+        r = c.post(reverse('user_signup'), {'email':user.username,
+                                            'password':user.username})
         #a duplicated signup should be rejected
         self.assertTrue(r.content.index('Email already in use') > -1)
-        
-    def test_login(self):
-        c = Client()
-        l = c.post(reverse('user_signup'), {'email':'user1@user1.com',
-                                            'password':'user1@user1.com'})
-        user = Builder.objects.get(username='user1@user1.com')
-        self.assertNotEqual(user.password, '')
-        l = c.login(username=user.username,
-                    password='user1@user1.com')        
-        self.assertEqual(l, True)        
-        
+
     def test_apply_project(self):
         c = Client()
-        builder = Builder.objects.create(username='user1@a.com',
-                                         email='user1@a.com')
-        builder.set_password('user1@a.com')   
-        builder.save()     
-        l = c.login(username=builder.username, password='user1@a.com')
+        builder = create_test_user('user1@a.com')
+        l = c.login(username=builder.username, password=builder.username)
+        
         r = c.post(reverse('project_apply'), {'project_id':self.project.id})
-        
+
         #test if the builder should appear in the builder list of the project
-        self.assertEqual(len(self.project.builders.filter(id=builder.id)), 1) 
-        
+        self.assertEqual(len(self.project.waitlist.filter(id=builder.id)), 1)
+
         r = c.post(reverse('project_apply'), {'project_id':self.project.id})
         #test if the builder apply to the same project again, it means unapply
-        self.assertEqual(len(self.project.builders.filter(id=builder.id)), 0)
+        self.assertEqual(len(self.project.waitlist.filter(id=builder.id)), 0)    
+
+    def tearDown(self):
         pass
     
+    def runTest(self):
+        self.test_signup()
+
+class TestOwner(TestCase):
+    def setUp(self):
+        #set up the owner. cred means all the username, password      
+        self.owner = create_test_user('owner@a.com')  
+        self.project = Project.objects.create(name='Project_Test',
+                                              desc='',
+                                              owner_id=self.owner.id)
+        
+        #set up builder1 and builder 2
+        self.builder1 = create_test_user('builder1@a.com')
+        self.builder2 = create_test_user('builder2@a.com')
+        
+        #builder 1 and 2 will apply to the same project
+        self.project.waitlist.add(self.builder1)
+        self.project.waitlist.add(self.builder2)
+        
+        #login as the owner
+        self.client = Client()
+        self.client.login(username=self.owner.username,password=self.owner.username)
+
+class TestOwnerChild(TestOwner):
     def test_endorse(self):
-        pass
-    
-    def tearDown(self):        
         pass

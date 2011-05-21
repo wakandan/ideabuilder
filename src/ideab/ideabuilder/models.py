@@ -7,7 +7,8 @@ class Project(models.Model):
     name = models.CharField(max_length=100, unique=True)
     desc = models.TextField()
     owner = models.ForeignKey(User, related_name='only_owner')
-    builders = models.ManyToManyField(User, related_name='builders')        
+    builders = models.ManyToManyField(User, related_name='builders')   
+    waitlist = models.ManyToManyField(User)     
     
     def get_absolute_url(self):
         return reverse('project_detail', kwargs={'object_id':self.id})
@@ -16,8 +17,11 @@ class Project(models.Model):
         return self.name
     
 class Builder(User):
+    name = models.CharField(max_length=200, default='Unknown')
     credit_no = models.IntegerField(default=0)   
     user = models.ForeignKey(User, unique=True, null=True, related_name='linked_user')
+    nationality = models.CharField(max_length=50, default='Unknown')
+    university = models.CharField(max_length=200, default='Unknown')        
     
 class Task(models.Model):
     name = models.CharField(max_length=128)
@@ -40,13 +44,4 @@ class Skill(models.Model):
     
     def __unicode__(self):
         return "%s:%s" % (self.category, self.name)
-
-#class BuilderAuthenticationBackend(ModelBackend):
-#    def authenticate(self, username, password):
-#        try: 
-#            user = Builder.objects.get(username=username)
-#            if user.check_password(password):
-#                return user
-#        except Builder.DoesNotExist, e:
-#            return None
 

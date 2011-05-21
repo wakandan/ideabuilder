@@ -7,10 +7,14 @@
         <form action="{%url project_apply%}" method="POST">
             {% csrf_token %}
     	   {{i.id}} - 
-    	   <b><a href="{{i.get_absolute_url}}">{{i.name}}</a></b><br>
+    	   <b><a href="{{i.get_absolute_url}}">{{i.name}}</a></b>
+    	   {% if user.id == i.owner.id %} (owned) {% endif %}   
+    	   <br> 	   
     	   <i>{{i.desc}}</i><br>
+    	   {% ifnotequal user.id i.owner.id %}   
     	   <input type="hidden" name="project_id" value="{{i.id}}"/>	        	       	  
-    	   <input type="submit" value="{% check_project_applied i %}"/>      	   
+    	   <input type="submit" value="{% check_project_applied i %}"/>
+           {% endifnotequal %}      	   
 	   </form>
 	{%endfor%}
 {%endblock%}

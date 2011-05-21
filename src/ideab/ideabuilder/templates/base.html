@@ -3,6 +3,7 @@
     {{user}}
 	{%if user.id%}
 	   <a href="{% url user_logout %}">(logout)</a>
+	   <a href="{% url project_list %}">(projects)</a>
 	{% else %}
         <a href="{% url user_login %}">(login)</a>	
 		<a href="{% url user_signup %}">(signup)</a>

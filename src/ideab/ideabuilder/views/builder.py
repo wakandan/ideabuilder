@@ -90,10 +90,10 @@ def apply(request):
         user = request.user
         project_id = request.POST['project_id']
         project = get_object_or_404(Project, pk=project_id)
-        if not project.builders.filter(id=user.id):
-            project.builders.add(user)
+        if not project.waitlist.filter(id=user.id):
+            project.waitlist.add(user)
         else:
-            project.builders.remove(user)
+            project.waitlist.remove(user)
     return HttpResponseRedirect(reverse('project_list'))
 
 

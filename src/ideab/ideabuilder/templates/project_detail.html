@@ -8,11 +8,12 @@
 	{% for builder in builder_list %}
 	   {{builder.username}} - {{builder.email}}<br>
 	{%endfor%}
+	{% ifnotequal user.id object.owner.id %}   
 	<form action="{% url project_apply %}" method="post">
 	    {% csrf_token %}
 	    <input type="hidden" value="{{object.id}}" name="project_id"/>
 	    {% load project_tags %}
 	    <input type="submit" value="{% check_project_applied object %}"/>
 	</form>
-	
+    {% endifnotequal %}	
 {%endblock%}

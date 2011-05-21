@@ -35,7 +35,7 @@ def project_detail(request, object_id):
 class ProjectForm(ModelForm):
     class Meta:
         model = Project
-        exclude = ['owner', 'builders']
+        exclude = ['owner', 'builders', 'waitlist']
         
     
 @csrf_protect    
